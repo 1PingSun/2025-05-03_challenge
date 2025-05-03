@@ -1,33 +1,49 @@
 <?php
 
-define( 'DVWA_WEB_PAGE_TO_ROOT', '../' );
+define('DVWA_WEB_PAGE_TO_ROOT', '../');
 require_once DVWA_WEB_PAGE_TO_ROOT . 'dvwa/includes/dvwaPage.inc.php';
 
-dvwaPageStartup( array( 'authenticated' ) );
+dvwaPageStartup(['authenticated']);
 
 $page = dvwaPageNewGrab();
-$page[ 'title' ] = 'Help' . $page[ 'title_separator' ].$page[ 'title' ];
+$page['title'] = 'Help' . $page['title_separator'] . $page['title'];
 
-if (array_key_exists ("id", $_GET) &&
-	array_key_exists ("security", $_GET) &&
-	array_key_exists ("locale", $_GET)) {
-	$id       = $_GET[ 'id' ];
-	$security = $_GET[ 'security' ];
-	$locale = $_GET[ 'locale' ];
+// ✅ 定義允許的模組與語系
+$allowedModules = [
+	'brute', 'csrf', 'exec', 'fi', 'upload',
+	'captcha', 'sqli', 'sqli_blind', 'weak_id',
+	'xss_d', 'xss_r', 'xss_s', 'csp', 'javascript',
+	'authbypass', 'open_redirect', 'encryption', 'api'
+];
 
-	ob_start();
-	if ($locale == 'en') {
-		eval( '?>' . file_get_contents( DVWA_WEB_PAGE_TO_ROOT . "vulnerabilities/{$id}/help/help.php" ) . '<?php ' );
+$allowedLocales = ['en', 'zh']; // 如有更多語系請補上
+
+if (isset($_GET['id'], $_GET['security'], $_GET['locale'])) {
+	$id = $_GET['id'];
+	$security = $_GET['security'];
+	$locale = $_GET['locale'];
+
+	// ✅ 白名單過濾模組與語系
+	if (in_array($id, $allowedModules) && in_array($locale, $allowedLocales)) {
+		$basePath = DVWA_WEB_PAGE_TO_ROOT . "vulnerabilities/{$id}/help/";
+		$filename = $basePath . ($locale === 'en' ? 'help.php' : "help.{$locale}.php");
+
+		if (file_exists($filename)) {
+			ob_start();
+			include($filename);
+			$help = ob_get_clean();
+		} else {
+			$help = "<p>Help file not found.</p>";
+		}
 	} else {
-		eval( '?>' . file_get_contents( DVWA_WEB_PAGE_TO_ROOT . "vulnerabilities/{$id}/help/help.{$locale}.php" ) . '<?php ' );
+		$help = "<p>Invalid module or locale specified.</p>";
 	}
-	$help = ob_get_contents();
-	ob_end_clean();
 } else {
-	$help = "<p>Not Found</p>";
+	$help = "<p>Missing required parameters.</p>";
 }
 
-$page[ 'body' ] .= "
+// 加入樣式與腳本
+$page['body'] .= "
 <script src='/vulnerabilities/help.js'></script>
 <link rel='stylesheet' type='text/css' href='/vulnerabilities/help.css' />
 
@@ -35,6 +51,5 @@ $page[ 'body' ] .= "
 	{$help}
 </div>\n";
 
-dvwaHelpHtmlEcho( $page );
-
+dvwaHelpHtmlEcho($page);
 ?>
