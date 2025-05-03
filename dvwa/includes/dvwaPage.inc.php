@@ -524,16 +524,24 @@ function dvwaExternalLinkUrlGet( $pLink,$text=null ) {
 // -- END ( external links)
 
 function dvwaButtonHelpHtmlGet( $pId ) {
-	$security = dvwaSecurityLevelGet();
-	$locale = dvwaLocaleGet();
-	return "<input type=\"button\" value=\"View Help\" class=\"popup_button\" id='help_button' data-help-url='" . DVWA_WEB_PAGE_TO_ROOT . "vulnerabilities/view_help.php?id={$pId}&security={$security}&locale={$locale}' )\">";
-}
+	$security = htmlspecialchars(dvwaSecurityLevelGet(), ENT_QUOTES, 'UTF-8');
+	$locale   = htmlspecialchars(dvwaLocaleGet(), ENT_QUOTES, 'UTF-8');
+	$pId      = htmlspecialchars($pId, ENT_QUOTES, 'UTF-8');
 
+	$url = DVWA_WEB_PAGE_TO_ROOT . "vulnerabilities/view_help.php?id={$pId}&security={$security}&locale={$locale}";
+
+	return '<input type="button" value="View Help" class="popup_button" id="help_button" data-help-url="' . $url . '">';
+}
 
 function dvwaButtonSourceHtmlGet( $pId ) {
-	$security = dvwaSecurityLevelGet();
-	return "<input type=\"button\" value=\"View Source\" class=\"popup_button\" id='source_button' data-source-url='" . DVWA_WEB_PAGE_TO_ROOT . "vulnerabilities/view_source.php?id={$pId}&security={$security}' )\">";
+	$security = htmlspecialchars(dvwaSecurityLevelGet(), ENT_QUOTES, 'UTF-8');
+	$pId      = htmlspecialchars($pId, ENT_QUOTES, 'UTF-8');
+
+	$url = DVWA_WEB_PAGE_TO_ROOT . "vulnerabilities/view_source.php?id={$pId}&security={$security}";
+
+	return '<input type="button" value="View Source" class="popup_button" id="source_button" data-source-url="' . $url . '">';
 }
+
 
 
 // Database Management --
