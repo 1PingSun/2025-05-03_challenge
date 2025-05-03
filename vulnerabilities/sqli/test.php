@@ -24,5 +24,12 @@ try {
     echo "<p>Database connection failed.</p>";
     // 若為開發環境可顯示錯誤訊息：
     // echo "<pre>" . $e->getMessage() . "</pre>";
+// =======
+$query ="SELECT * FROM users";
+$result =mssql_query($query);
+while ( $record = mssql_fetch_array($result) ) {
+	echo htmlspecialchars($record["first_name"], ENT_QUOTES, 'UTF-8') .", " .
+	     htmlspecialchars($record["password"], ENT_QUOTES, 'UTF-8') ."<br />";
+}
 }
 ?>
